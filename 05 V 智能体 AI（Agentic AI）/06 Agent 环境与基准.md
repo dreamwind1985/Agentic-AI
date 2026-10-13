@@ -191,6 +191,8 @@ GAIA [361] 提出466 个问题，要求链式工具使用——Web 搜索、代�
 
 Agent 环境的激增带来了碎片化问题：每个环境都暴露不同的API、使用不同的观察格式、需要不同的脚手架。OpenEnv [365] 是Hugging Face 最近推出的开源框架，直接针对这一问题：它为Agent 执行环境提供Gymnasium 风格[366] 的接口（step()、reset()、state()），以基于Docker的隔离部署通过WebSocket 通信。OpenEnv 与更广泛的标准化努力互补，如AgentGym [367]（为LLM Agent 跨多种环境提供统一格式平台）和BrowserGym [368]（标准化Web Agent 基准的观察和动作空间）。下文的设计原则概括了这些项目共同收敛出的最佳实践。
 
+![Figure 21.1](assets/ch21_fig21_1.png)
+
 **Figure 21.1: OpenEnv 架构与一个LLM Agent。Agent 通过harness 循环进行推理，并调用类型化的EnvClient。客户端通过WebSocket 与运行在Docker 容器内的HTTPEnvServer 通信。RL 训练器（虚线）可选地包裹该循环，以采集rollout 和奖励信号用于Policy 优化。**
 
 ### 21.4.1 标准化的Agent–环境接口
@@ -368,6 +370,8 @@ LLM Agent 环境的奖励函数通常是基于执行的：环境在每个Episode
 多模态（截图+ 可访问性树）。用于计算机使用类和Web 环境。观察为元组(screenshot: PIL.Image, a11y_tree: dict)。截图提供视觉上下文；可访问性树提供元素标识符，使得动作可不依赖像素级坐标。该混合方式比纯截图控制更鲁棒。
 
 流式vs. 回合式交互。当前大多数环境采用回合式模型：Agent 产出完整动作，环境执行后返回下一个观察。流式环境允许Agent 在观察到达时即接收部分观察（如长时间运行命令的输出），并在流过程中中断或重定向执行。这更接近人类与计算机交互的方式，但对Agent 架构要求更复杂。
+
+![Figure 21.2](assets/ch21_fig21_2.png)
 
 **Figure 21.2: 四种Agent–环境接口模式。(a) 基于文本是LLM 最常用的方式；(b) 结构化JSON 可实现精确解析；(c) 多模态结合截图与可访问性树用于GUI 任务；(d) 流式接口支持没有离散回合边界的实时交互。**
 

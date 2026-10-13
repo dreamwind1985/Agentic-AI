@@ -30,6 +30,8 @@
 
 在集中式架构中，由单一的Orchestrator Agent（也称为supervisor、manager 或planner）持有全局状态，分解任务，将子任务委派给工作Agent，并汇总它们的结果。其拓扑是中心辐射式（hub-and-spoke）：所有通信都通过中心节点流动。
 
+![Figure 25.1](assets/ch25_fig25_1.png)
+
 **Figure 25.1: 集中式（Supervisor）架构。Manager 将任务委派给专门化的Worker，并汇总它们的输出。所有通信均通过中央枢纽流动。**
 
 Manager 的职责包括：
@@ -106,13 +108,16 @@ graph = builder.compile()
 
 - 局部共识（Local consensus）：小组Agent 在无全局协调的情况下达成一致
 
-![图 413-2](assets/ch25_p413_fig1.png)
+
+![Figure 25.2](assets/ch25_fig25_2.png)
 
 **Figure 25.2: 去中心化（peer-to-peer）架构。Agent 直接通信；协调从局部交互中涌现。**
 
 ### 25.2.3 层级式（Hierarchical）架构
 
 层级式架构将集中式模式推广为具有多层管理的树形结构。顶层Orchestrator 委派给特定领域的子Manager，后者再委派给专门化Worker。这映射了大型企业的组织结构。
+
+![Figure 25.3](assets/ch25_fig25_3.png)
 
 **Figure 25.3: 层级式架构。顶层Orchestrator 委派给领域子Manager，后者再委派给专门化Worker。虚线箭头表示升级路径。**
 

@@ -6,7 +6,8 @@
 
 在深入架构细节之前，让我们先建立大语言模型如何将文本转换为文本的直觉。整个过程遵循一条简单的流水线：文本→Token →表征→Token →文本。
 
-![图 33-1](assets/ch1_p33_fig1.png)
+
+![Figure 1.1](assets/ch1_fig1_1.png)
 
 **Figure 1.1: LLM 流水线：文本被分词为子词单元，转换为整数ID，嵌入为稠密向量，经Transformer 层处理，投影到词表logits，最后解码回文本。虚线回路展示自回归生成——每个输出Token 被追加到输入中作为下一次前向传播的输入。**
 
@@ -44,9 +45,9 @@
 
 字节对编码（Byte-Pair Encoding，BPE）[24] 是GPT、Llama、Mistral 以及大多数现代LLM 采用的主流分词算法。
 
-![图 34-1](assets/ch1_p34_fig1.png)
+![Figure 1.2](assets/ch1_fig1_2.png)
 
-或词表预算耗尽。
+**Figure 1.2: BPE 分词示例：从字符开始，算法迭代地合并出现频率最高的相邻对，直到该词成为单个Token 或词表预算耗尽。**
 
 ### 1.2.3 其他分词方法
 
@@ -159,7 +160,6 @@ Listing 1.2: 带特殊Token 的对话模板（Llama-3 格式）。
 
 - RL 中的一致处理：在PPO/GRPO 期间，确保参考模型与策略模型使用相同的分词和特殊Token 处理——不一致会破坏KL 计算。
 
-![图 37-1](assets/ch1_p37_fig1.png)
 
 ## 1.3 Transformer 架构
 
@@ -168,6 +168,8 @@ Transformer [6] 是所有现代LLM 的基础。理解其组件对于把握本指
 ### 1.3.1 整体结构
 
 仅解码器（decoder-only）的Transformer 依次通过嵌入层、重复的注意力+FFN 块以及最终对词表logits 的投影来处理Token。图1.3 展示了完整架构。
+
+![Figure 1.3](assets/ch1_fig1_3.png)
 
 **Figure 1.3: 仅解码器Transformer 块（GPT 风格，Pre-Norm 变体）。每个子层（注意力、FFN）之前先经过LayerNorm，之后接残差相加：x + SubLayer(LN(x))。这种Pre-Norm 顺序（被Llama、GPT-3、Mistral采用）在无需warmup 的情况下稳定训练，不同于原始的Post-Norm（在相加之后应用LayerNorm）。L 个相同的块被堆叠，之后是一个最终的LayerNorm 和到词表logits 的线性投影。**
 
@@ -178,6 +180,8 @@ Transformer 最初被提出[6] 时是一种用于序列到序列任务（机器�
 编码器（Encoder）。编码器双向地处理整个输入序列——每个Token 关注所有其他Token（无因果掩码）。这产生了丰富的上下文表征Henc ∈Rn×d，其中每个位置都编码了关于整个输入的信息：
 
 - 输入：Token嵌入+ 正弦位置编码
+
+![Figure 1.4](assets/ch1_fig1_4.png)
 
 **Figure 1.4: 原始Transformer 架构（Vaswani 等，2017）。编码器（左）通过双向自注意力处理整个输入。解码器（右）使用带掩码的自注意力以及对编码器表征的交叉注意力来自回归生成Token。虚线框表示重复的层块（×N）；灰线表示绕过每个子层的残差连接。注意：原始工作使用Post-Norm（LayerNorm 在残差相加之后应用：LN(x + SubLayer(x))），不同于现代LLM 使用Pre-Norm。**
 
@@ -245,6 +249,8 @@ QdecKT CrossAttn(Qdec, Kenc, Venc) = softmax √dk enc Venc (1.2)
 
 - 向量运算捕捉关系：⃗ king − man + ⃗ woman ≈ ⃗ queen ⃗
 
+![Figure 1.5](assets/ch1_fig1_5.png)
+
 **Figure 1.5: 嵌入空间可视化（二维投影）：语义相似的词聚集在一起。嵌入表在预训练期间学习这些位置，纯粹从文本中的共现模式中捕捉含义。**
 
 嵌入表。在实践中，嵌入层就是一个矩阵E ∈R|V|×d，其中第i 行存储Token i 的嵌入向量：
@@ -269,11 +275,12 @@ embed(xt) = E[xt] ∈Rd (1.3)
 
 - 梯度流：在训练期间，只有当前批次中Token 对应的行接收梯度更新（稀疏更新）。
 
-![图 41-1](assets/ch1_p41_fig1.png)
 
 各向异性（anisotropy）问题。当使用预训练嵌入（例如来自BERT 或GPT-2）用于下游任务（如检索RAG 或推荐系统冷启动）时，会出现一个关键问题：学习到的表征高度各向异性（anisotropic）
 
 - —它们占据嵌入空间中一个狭窄的锥形区域，而非均匀分布在所有方向上[36]。
+
+![Figure 1.6](assets/ch1_fig1_6.png)
 
 **Figure 1.6: 嵌入空间中的各向同性（isotropy）与各向异性（anisotropy）。左：各向同性的嵌入均匀分布，使余弦相似度成为可靠的语义相关性度量。右：各向异性的嵌入（如BERT 中观察到的）聚集在狭窄的锥形内，导致所有对的余弦相似度都很高，无论语义内容如何。白化（whitening）变换空间以恢复各向同性。**
 
@@ -710,9 +717,10 @@ P(xt+1|x≤t) = softmax(Whead · ht + b) (1.7)
 
 其中Whead ∈R|V|×d（通常与embedding 矩阵权重共享：Whead = ET ）。
 
+![Figure 1.7](assets/ch1_fig1_7.png)
+
 **Figure 1.7: 同一个Transformer 主干网络通过更换预测头即可支持不同任务。本文使用的全部三种预测头在最终投影层之下具有完全相同的架构。**
 
-![图 51-1](assets/ch1_p51_fig1.png)
 
 ### 1.4.2 条件生成头（SFT / 指令跟随）
 
@@ -839,6 +847,8 @@ Listing 1.3: 使用HuggingFace 加载与使用不同的预测头。
 
 其中η > 0 是学习率（Learning Rate）——也就是步长。这就是梯度下降（Gradient Descent）[76]。
 
+![Figure 1.8](assets/ch1_fig1_8.png)
+
 **Figure 1.8: 梯度下降：从随机初始化θ0 开始，每一步都将参数沿降低损失的方向移动，步长由学习率η 控制。该过程会向某个（局部）最小值收敛。**
 
 为何全梯度下降不可行。计算精确梯度需要在整个训练集上评估损失（对LLM 而言是万亿级token），计算开销极其高昂——单步梯度更新就需要遍历全部数据。
@@ -936,6 +946,8 @@ Adam 与AdamW 的差别虽细微但很重要。使用Adam + L2 时，梯度方�
 - SFT 场景：通常预热50–200 步
 
 ### 1.5.7 学习率调度策略
+
+![Figure 1.9](assets/ch1_fig1_9.png)
 
 **Figure 1.9: 常见学习率调度。所有调度都包含一个线性预热阶段。WSD（Warmup-Stable-Decay）正成为预训练的事实标准。**
 
@@ -1480,6 +1492,8 @@ W ′ = W + α r · BA, B ∈Rd×r, A ∈Rr×d
 
 Aghajanyan 等[92] 表明，微调发生在一个非常低维的子空间——微调任务的「内在维度（intrinsic dimensionality）」远小于模型的参数量。一个175B 模型的微调任务内在维度可能<10,000。LoRA直接利用了这一点：秩r 把每个权重矩阵的更新约束在r 维子空间内。
 
+![Figure 1.10](assets/ch1_fig1_10.png)
+
 **Figure 1.10: LoRA 将权重更新∆W 分解为两个小矩阵B × A。原始权重W 保持冻结；只有B 和A 接收梯度。推理时，乘积BA 可以零开销地合并到W 中。**
 
 为什么α/r 缩放很重要
@@ -1641,6 +1655,8 @@ X N MoE(x) = gi(x) · Ei(x), g(x) = TopK(softmax(Wrx)) i=1
 
 - 总参数量随N 增长；激活参数量按FFN 大小的K/N 比例增长
 
+![Figure 1.11](assets/ch1_fig1_11.png)
+
 **Figure 1.11: 具有8 个专家和Top-2 路由的MoE 层。每个Token 只计算门控值最高的两个专家；其余专家被完全跳过。**
 
 ### 1.10.2 负载均衡
@@ -1781,6 +1797,8 @@ X |y| scorenorm(y) = log P(yi|y<i), α ∈[0.6, 1.0] |y|α i=1
 
 缺点：对开放式生成仍倾向于产生泛泛、重复的文本；计算量增加B 倍；所有束往往收敛到相似的输出。
 
+![Figure 1.12](assets/ch1_fig1_12.png)
+
 **Figure 1.12: 束宽为B = 2 的束搜索。在每一步，只有得分最高的2 个部分序列会被保留（蓝色）。得分较低的候选会被剪枝（灰色）。**
 
 ### 1.12.3 多样化束搜索（Diverse Beam Search）
@@ -1818,6 +1836,8 @@ X scoreg(yt) = log P(yt|y<t) −λ ∆(yt, Yg′) g′<g
 优点：能适应分布形状；广泛使用的默认设置（p = 0.9–0.95）。
 
 缺点：在核的尾部仍会包含一些低质量Token；阈值是一个单一的全局超参数。
+
+![Figure 1.13](assets/ch1_fig1_13.png)
 
 **Figure 1.13: Top-p（核）采样：Token 按概率排序并依次加入，直到累计质量达到p = 0.9。核（深蓝）会根据分布形状自适应其大小——这里5 个Token 就足够了。**
 
@@ -2530,6 +2550,8 @@ SelfCheckGPT。Manakul 等人[149] 通过检查自一致性来检测幻觉：生
 | 越狱（Jailbreaking） | 绕过安全护栏的对抗性Prompt [154] |
 | 虚假信息 | 生成令人信服但虚假的陈述（规模化的幻觉） |
 | 双重用途 | 合法能力（编程、化学）被武器化用于伤害 |
+
+![Figure 1.14](assets/ch1_fig1_14.png)
 
 **Figure 1.14: 安全贯穿每个阶段：预训练中的数据过滤、SFT 中的拒答示例、RLHF 中专门的安全奖励模型，以及迭代式红队测试。**
 

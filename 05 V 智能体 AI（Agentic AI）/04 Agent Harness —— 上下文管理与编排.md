@@ -20,11 +20,12 @@
 
 - 可观测性（Observability）——harness对每一步进行埋点，用于日志、追踪与调试。
 
-![图 323-2](assets/ch19_p323_fig2.png)
 
 ## 19.2 Context Window 管理
 
 Context window 是Agent 的工作记忆。窗口中的每一个Token 都意味着金钱与延迟的开销；而不在窗口中的每一个Token 对模型而言都是不可见的。管理这一有限资源是Agent 设计中最具影响力的工程决策之一。
+
+![Figure 19.1](assets/ch19_fig19_1.png)
 
 **Figure 19.1: agent harness 的高层架构。LLM 只负责推理；所有执行、记忆、路由与可观测性都由harness管理。**
 
@@ -88,6 +89,8 @@ score(mi) = sim(e(mi), e(q)) + λ · recency(i) (19.5)
 
 - 分层摘要（Hierarchical Summarization）：维护一个多层摘要金字塔——最近的轮次原文保留，较旧的轮次以段落摘要保留，最旧的轮次合并为一个抽象摘要。
 
+![Figure 19.2](assets/ch19_fig19_2.png)
+
 **Figure 19.2: 三种滑动窗口策略。红色= 固定保留，灰色= 丢弃，蓝色= 原文保留，黄色= 摘要，绿色= 新消息。**
 
 ### 19.2.5 递归Context 分解
@@ -144,7 +147,8 @@ f"\n\nSummaries:\n{combined}"
 
 ### 19.2.6 Token 计数与预算监控
 
-![图 326-2](assets/ch19_p326_fig1.png)
+
+![Figure 19.3](assets/ch19_fig19_3.png)
 
 **Figure 19.3: 递归语言模型（RLM）。根模型将Context 划分为若干块，在深度1 派生子LLM 调用，子调用可能进一步递归（深度2）。结果向上回流（绿色虚线箭头）并聚合为最终答案。任何单次调用都不会处理完整Context。**
 
@@ -408,6 +412,8 @@ return truncated
 
 4. harness 将结果以tool 消息的形式插入Context。
 
+![Figure 19.4](assets/ch19_fig19_4.png)
+
 **Figure 19.4: MCP 架构。harness 充当MCP client，通过标准化传输将工具调用路由到专门的MCP server。**
 
 ## 19.5 编排模式
@@ -430,6 +436,8 @@ Thoughtt →Actiont →Observationt →Thoughtt+1 →· · ·(19.10)
 
 - 当模型输出”Final Answer”动作或停止Token 时循环终止。
 
+![Figure 19.5](assets/ch19_fig19_5.png)
+
 **Figure 19.5: ReAct 循环：Agent 在推理与行动之间交替，直到满足终止条件。**
 
 ### 19.5.2 Plan-and-Execute
@@ -449,6 +457,8 @@ Agent 不是逐步决策，而是先生成一个完整的计划，然后依次�
 复杂任务受益于多个专业化Agent 协同工作。四种典型模式：
 
 Supervisor（监督者）模式。一个中央”supervisor” LLM 接收用户请求，将其分解，并将子任务路由到专门的Agent。结果由supervisor 聚合。
+
+![Figure 19.6](assets/ch19_fig19_6.png)
 
 **Figure 19.6: Supervisor 模式：一个编排者将任务路由至专门的Agent。**
 
@@ -495,6 +505,8 @@ G = (V, E, σ0), v ∈V : agent step, e ∈E : conditional transition, σ0 : ini
 ## 19.6 状态管理
 
 Agent 本质上是有状态的。harness 必须管理多层状态：
+
+![Figure 19.7](assets/ch19_fig19_7.png)
 
 **Figure 19.7: 一个人机协同Agent 的示例工作流图。状态与条件转移都是显式的，使控制流可审计。**
 

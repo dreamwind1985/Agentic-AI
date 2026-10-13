@@ -18,13 +18,13 @@
 
 迭代。随着外部世界变化、API 演进以及用户行为漂移，生产Agent 的表现会随时间退化。持续改进需要系统化的失败分析、Prompt 版本管理和微调流水线。
 
-![图 430-2](assets/ch26_p430_fig2.png)
 
-![图 431-1](assets/ch26_p431_fig1.png)
 
 ## 26.2 Agent 开发生命周期
 
 结构化的开发生命周期能帮助团队系统地从概念走向生产。图26.1 展示了五个主要阶段。
+
+![Figure 26.1](assets/ch26_fig26_1.png)
 
 **Figure 26.1: Agent 开发生命周期。每个阶段的反馈环确保持续改进。**
 
@@ -235,6 +235,8 @@ config={"configurable": {"thread_id": "research -1"}}
 ```
 
 #### Listing 26.4: 研究型Agent ——图构建与调用
+
+![Figure 26.2](assets/ch26_fig26_2.png)
 
 **Figure 26.2: 研究型Agent 的LangGraph 执行图。条件边实现了Tool 使用循环与错误处理。**
 
@@ -670,11 +672,12 @@ print(str(result))
 
 除主要的商业框架外，围绕Agent 开发的具体环节也涌现出丰富的开源工具生态。相比全栈框架，这些工具往往提供更高的灵活度和透明度。
 
-![图 442-2](assets/ch26_p442_fig1.png)
 
 ### 26.4.1 模块化Agent 架构
 
 模块化方案把Agent 系统拆解为可独立替换的组件：
+
+![Figure 26.3](assets/ch26_fig26_3.png)
 
 **Figure 26.3: 模块化Agent 架构。编排器将任务派发给各核心服务；每个服务自管其存储。虚线表示可选的跨服务通信。**
 
@@ -802,6 +805,8 @@ agent = Agent(model="gpt-4o", tools=tools)
 ## 26.5 Agent 测试与评测
 
 测试Agent 需要一套多层策略，以应对非确定性、有状态、多步骤系统所特有的挑战。
+
+![Figure 26.4](assets/ch26_fig26_4.png)
 
 **Figure 26.4: Agent 测试金字塔。下层数量多且更快；上层提供更高的可信度。**
 
@@ -1128,6 +1133,8 @@ print(f"Replay output: {response.choices[0].message.content[:300]}")
 ## 26.7 生产部署模式
 
 要大规模部署Agent，必须在执行模型、状态管理和资源分配三方面格外审慎。
+
+![Figure 26.5](assets/ch26_fig26_5.png)
 
 **Figure 26.5: 基于队列的异步Agent 部署。worker 从队列拉取任务，并独立持久化各自状态。**
 

@@ -54,6 +54,8 @@ P
 
 DeepSeek-R1 突破[15]：纯GRPO 配合二值正确性reward（答对r = 1，答错r = 0）在数学/代码上训练时，模型自发涌现出思维链（Chain-of-Thought，CoT）推理、自我验证和错误纠正——完全没有被显式指示这么做。
 
+![Figure 7.1](assets/ch7_fig7_1.png)
+
 **Figure 7.1: GRPO 实战：对一个数学prompt 采样G=5 条响应。三条正确（r=1），两条错误（r=0）。组均值µG=0.6 充当baseline；正确响应获得正advantage（强化），错误响应获得负advantage（抑制）。**
 
 ## 7.3 TRL 实现

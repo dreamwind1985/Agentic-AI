@@ -18,9 +18,10 @@ Integrations with standard = N + M (22.2)
 
 对于N = 20 个Agent 框架和M = 50 个工具提供方而言，这把集成负担从1,000 个定制连接器降低到仅70 个协议实现——减少了14 倍。这正是USB（通用设备连接）、HTTP（通用Web 通信）和LSP（语言服务器协议，用于IDE 工具链）等协议背后的思想。MCP 把同样的理念应用到了AI 工具使用上。
 
-![图 367-2](assets/ch22_p367_fig2.png)
 
 每一个IDE 都必须为每一种编程语言单独实现语言支持（自动补全、跳转定义、错误高亮）。在LSP之后，语言服务器与编辑器只需说一种共同的协议。MCP 之于AI 工具使用，正如LSP 之于开发者工具链。
+
+![Figure 22.1](assets/ch22_fig22_1.png)
 
 **Figure 22.1: MCP 的工作方式：一次用户请求依次流经Host、LLM 与MCP Server。LLM 决定调用哪一个工具（步骤3）；Host 通过JSON-RPC 将该调用路由到对应的server（步骤4）；结果再回传给LLM 进行自然语言整理（步骤5–7）。用户看不到任何协议层的细节。**
 
@@ -95,6 +96,8 @@ MCP 的一项关键设计决定是：连接是有状态会话，而非无状态�
 ## 22.3 核心原语
 
 MCP 定义了四种核心原语，server 可将其暴露给client。每种原语都有其独特的用途、控制方向与使用场景。
+
+![Figure 22.2](assets/ch22_fig22_2.png)
 
 **Figure 22.2:完整的MCP 架构栈。Host 管理一个或多个Client，每个Client 通过传输层（stdio 或Streamable HTTP）与一个MCP Server 维持有状态的会话。所有client–server 通信均使用JSON-RPC 2.0。**
 

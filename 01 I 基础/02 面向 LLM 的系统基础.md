@@ -60,9 +60,10 @@ NVIDIA 已经发布了一系列GPU 架构，每一代都为深度学习带来关
 
 GPU 由一组流式多处理器（Streaming Multiprocessor，SM）阵列组成，每个SM 都是独立的处理器，拥有自己的寄存器文件、共享内存和执行单元。理解SM 是理解GPU 性能的关键。
 
+![Figure 2.1](assets/ch2_fig2_1.png)
+
 **Figure 2.1: 左：A100 单个流式多处理器（SM）的内部结构——64 个FP32 CUDA cores、4 个Tensor Cores、4 个warp 调度器、256 KB 寄存器文件以及192 KB 共享内存/L1 缓存。右：完整A100 芯片包含108 个SM，共享40 MB L2 缓存和80 GB HBM2e。左侧边栏的带宽标注显示了从寄存器到HBM 的急剧下降。**
 
-![图 97-1](assets/ch2_p97_fig1.png)
 
 - Tensor Cores：专用的矩阵乘加（matrix-multiply-accumulate，MMA）单元。每个单元每周期执行一次4×4×4 融合乘加运算。A100 每个SM 有4 个，在支持的精度下提供相对CUDA cores 16× 的吞吐量。
 
@@ -117,9 +118,10 @@ FLOPs I = (FLOPs / Byte)从HBM 访问的字节数
 
 Iridge = 峰值FLOP/s = 312 × 1012 = 156 FLOP/Byte (A100 BF16)峰值带宽2 × 1012
 
+![Figure 2.2](assets/ch2_fig2_2.png)
+
 **Figure 2.2: A100 BF16 的Roofline 模型（Roofline Model）。Attention 深陷于内存密集区间；大型GEMM（FFN 层）则是计算密集的。**
 
-![图 99-1](assets/ch2_p99_fig1.png)
 
 内存流量（标准实现，非Flash 版）：
 
@@ -246,6 +248,8 @@ AllReduce 耗时：每步275/400 ≈0.69 秒。
 含义：对于一个1 秒的计算步骤，通信增加0.69 秒（占总步骤时间41%）。这就是为什么梯度压缩、混合精度、以及把通信与计算重叠的FSDP 至关重要。
 
 网络拓扑示意图。下图展示了典型的双节点GPU 集群拓扑，同时显示节点内（NVLink）和节点间（InfiniBand）通信路径。
+
+![Figure 2.3](assets/ch2_fig2_3.png)
 
 **Figure 2.3: 两节点8-GPU 拓扑。节点内：通过NVSwitch 的NVLink 4（总计900 GB/s）。节点间：通过机架顶端交换机的InfiniBand NDR 400Gb/s。每个节点配有8 块IB 网卡（每块GPU 一块），用于轨道优化AllReduce。**
 
@@ -376,6 +380,8 @@ KV cache 最大token 数：59.5 × 109/40,960 ≈145 万token。
 vLLM 将PagedAttention 封装在一整套服务栈中：连续批处理（Continuous Batching）、前缀缓存（Prefix Caching）、投机解码（Speculative Decoding）以及张量并行的模型分片协同工作，最大化每美元GPU 的吞吐。
 
 ### 2.2.8 架构总览
+
+![Figure 2.4](assets/ch2_fig2_4.png)
 
 **Figure 2.4: vLLM 架构：请求自上而下流动。Scheduler 管理准入与抢占，Block Manager 负责虚拟到物理KV cache 映射（像操作系统页表一样），Model Executor 在GPU HBM 中从预分配的块池读取数据并执行批量推理。**
 

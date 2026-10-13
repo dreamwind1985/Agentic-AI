@@ -206,11 +206,12 @@ Rollout Buffer（PPO、GRPO）：On-policy。存储一个batch 的轨迹。使�
 
 ## 5.7 细节机制：Logits 与Policy 更新
 
+![Figure 5.1](assets/ch5_fig5_1.png)
+
 **Figure 5.1: PPO 端到端流程：从prompt batch 出发，经过生成、reward 打分、KL 计算、advantage 估计，到clipped policy 更新。反馈环显示更新后的policy 又被用于下一次生成。**
 
 PPO 在内存中维护两份不同的参数状态，它们共享同一神经网络拓扑，但在优化过程中持有不同的权重值：
 
-![图 130-1](assets/ch5_p130_fig1.png)
 
 ### 5.7.1 阶段1：Rollout（数据收集）
 

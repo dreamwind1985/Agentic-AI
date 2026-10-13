@@ -635,6 +635,8 @@ A2A 与模型上下文协议（Model Context Protocol, MCP）[334] 之间的关�
 
 在生产环境的多Agent 系统中，A2A 与MCP 在不同层次上协同工作：A2A 处理Agent 之间的委派与协调（同级之间的横向通信），而MCP 处理每个Agent 到其Tool 与数据源的连接（与能力的纵向集成）。这种关注点分离是构建可扩展Agent 架构的关键。
 
+![Figure 24.1](assets/ch24_fig24_1.png)
+
 **Figure 24.1: A2A 与MCP 组合架构。编排器通过A2A 将任务委派给专家Agent；每个Agent 则通过MCP服务器访问自己的Tool。**
 
 - 用A2A 进行委派：当一个Agent 需要它本身不具备的能力时，会通过A2A 任务消息委派给另一个Agent。每个Agent 都是带有自身Agent Card 的自包含服务。
